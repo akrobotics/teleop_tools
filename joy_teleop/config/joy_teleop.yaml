@@ -85,3 +85,13 @@ teleop:
     action_goal:
     increment_by: [-0.05]
     buttons: [6]
+
+  emergency_stop:
+    type: topic
+    message_type: std_msgs/Bool
+    topic_name: /joy/estop/enable
+    deadman_buttons: [0]
+    message_value:
+      -
+        target: data
+        value: True

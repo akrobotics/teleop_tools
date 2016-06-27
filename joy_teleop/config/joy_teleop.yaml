@@ -76,22 +76,28 @@ teleop:
     type: action
     action_name: /torso_controller/increment
     action_goal:
-    increment_by: [0.05]
+      increment_by: [0.05]
     buttons: [4]
 
   torso_down:
     type: action
     action_name: /torso_controller/increment
     action_goal:
-    increment_by: [-0.05]
+      increment_by: [-0.05]
     buttons: [6]
 
-  emergency_stop:
+  stop:
     type: topic
-    message_type: std_msgs/Bool
-    topic_name: /joy/estop/enable
-    deadman_buttons: [0]
+    message_type: geometry_msgs/Twist
+    topic_name: cmd_vel
+    deadman_buttons: [0, 2]
     message_value:
       -
-        target: data
-        value: True
+        target: linear.x
+        value: 0.0
+      -
+        target: angular.z
+        value: 0.0
+      -
+        target: linear.y
+        value: 0.0

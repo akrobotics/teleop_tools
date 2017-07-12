@@ -190,7 +190,6 @@ class JoyTeleop:
 
             try:
                 param_val = rospy.get_param(param)
-                rospy.logwarn(param_val)
             except KeyError as e:
                 rospy.logwarn('Param {} is not set'.format(param))
                 return

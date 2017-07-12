@@ -181,6 +181,24 @@ class JoyTeleop:
         cmd = self.command_list[c]
         msg = self.get_message_type(cmd['message_type'])()
 
+        # Check if there is condition on a ros parameter for publishing
+        # If condition is not met, do not publish message
+
+        if 'if' in cmd:
+            param = cmd['if']['param']
+            condition = cmd['if']['value']
+
+            try:
+                param_val = rospy.get_param(param)
+                rospy.logwarn(param_val)
+            except KeyError as e:
+                rospy.logwarn('Param {} is not set'.format(param))
+                return
+
+            if param_val != condition:
+                return
+
+
         if 'message_value' in cmd:
             for param in cmd['message_value']:
                 self.set_member(msg, param['target'], param['value'])

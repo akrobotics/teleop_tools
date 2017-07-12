@@ -4,6 +4,9 @@ teleop:
     message_type: geometry_msgs/Twist
     topic_name: cmd_vel
     deadman_buttons: [4]
+    if:
+      param: test
+      value: True
     axis_mappings:
       -
         axis: 1

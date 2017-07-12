@@ -59,7 +59,18 @@ class JoyTeleop:
         # Run a low-freq action updater
         rospy.Timer(rospy.Duration(2.0), self.update_actions)
 
+        # Create a timer to notify if joy_node hasn't published for a while
+        self.joy_timeout = rospy.get_param("~joy_timeout", 0.0)
+        
+        if self.joy_timeout > 0.0:
+            self._joy_timeout_timer = rospy.Timer(rospy.Duration(self.joy_timeout), self.joy_timeout_cb)
+
     def joy_callback(self, data):
+        
+        if self.joy_timeout > 0.0:
+            self._joy_timeout_timer.shutdown()
+            self._joy_timeout_timer = rospy.Timer(rospy.Duration(self.joy_timeout), self.joy_timeout_cb)
+
         try:
             for c in self.command_list:
                 if self.match_command(c, data.buttons):
@@ -67,6 +78,20 @@ class JoyTeleop:
         except JoyTeleopException as e:
             rospy.logerr("error while parsing joystick input: %s", str(e))
         self.old_buttons = data.buttons
+
+    def joy_timeout_cb(self, event):
+        """Publish specified messages on topics when joy times out"""
+        for command in self.command_list:
+            cmd = self.command_list[command]
+            if cmd['type'] == 'topic' and 'timeout' in cmd:
+                
+                msg = self.get_message_type(cmd['message_type'])()
+                
+                for param in cmd['timeout']:
+                    self.set_member(msg, param['target'], param['value'])
+
+                self.publishers[cmd['topic_name']].publish(msg)
+
 
     def register_topic(self, name, command):
         """Add a topic publisher for a joystick command"""
